@@ -14,8 +14,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/{id}")
-    public String buyProduct(@PathVariable String id)
-    {
+    public String buyProduct(@PathVariable String id) {
         return orderService.buyProduct(id);
     }
 }
