@@ -2,13 +2,13 @@ package com.uv.order_service.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 @Configuration
-public class RestTemplateConfig {
+public class RestClientConfig {
 
     @Bean
-    public RestTemplate getBean() {
-        return new RestTemplate();
+    RestClient getRestClient() {
+        return RestClient.create();
     }
 }
