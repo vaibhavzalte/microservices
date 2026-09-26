@@ -2,10 +2,12 @@ package com.uv.order_service.service;
 
 import com.uv.order_service.entity.Inventory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -38,5 +40,41 @@ public class OrderService {
                 .body(inventory)
                 .retrieve()
                 .body(Inventory.class);
+    }
+
+    public ResponseEntity<Inventory> addInventory2(Inventory inventory) {
+        return restClient.post()
+                .uri("http://localhost:8082/inventory/add")
+                .body(inventory)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, ((request, response) -> {
+                    throw new RuntimeException(response.getBody().toString());
+                }))
+                .toEntity(Inventory.class);
+    }
+
+    private final ObjectMapper objectMapper;
+
+    public ResponseEntity<Inventory> addInventory3(Inventory inventory) {
+
+        return restClient.post()
+                .uri("http://localhost:8082/inventory/add")
+                .body(inventory)
+                .exchange((request, response) -> {
+
+                    if (response.getStatusCode().is4xxClientError()) {
+                        String errorMessage =
+                                new String(response.getBody().readAllBytes());
+
+                        throw new RuntimeException(errorMessage);
+                    }
+
+                    Inventory body =
+                            objectMapper.readValue(response.getBody(), Inventory.class);
+
+                    return ResponseEntity
+                            .status(response.getStatusCode())
+                            .body(body);
+                });
     }
 }
