@@ -1,11 +1,9 @@
 package com.uv.order_service.controller;
 
+import com.uv.order_service.entity.Inventory;
 import com.uv.order_service.service.OrderService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
@@ -16,5 +14,10 @@ public class OrderController {
     @PostMapping("/{id}")
     public String buyProduct(@PathVariable String id) {
         return orderService.buyProduct(id);
+    }
+
+    @PostMapping("/add")
+    public Inventory addInventory(@RequestBody Inventory inventory){
+        return orderService.addInventory(inventory);
     }
 }

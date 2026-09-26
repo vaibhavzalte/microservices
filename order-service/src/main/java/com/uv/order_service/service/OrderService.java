@@ -1,5 +1,6 @@
 package com.uv.order_service.service;
 
+import com.uv.order_service.entity.Inventory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -29,5 +30,13 @@ public class OrderService {
             return e.getResponseBodyAsString();
 
         }
+    }
+
+    public Inventory addInventory(Inventory inventory) {
+        return restClient.post()
+                .uri("http://localhost:8082/inventory/add")
+                .body(inventory)
+                .retrieve()
+                .body(Inventory.class);
     }
 }
