@@ -1,6 +1,7 @@
 package com.uv.order_service.service;
 
 import com.uv.order_service.entity.Inventory;
+import com.uv.order_service.outbound.InventoryClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +15,12 @@ import tools.jackson.databind.ObjectMapper;
 public class OrderService {
 
     private final RestClient restClient;
+    private final ObjectMapper objectMapper;
+    private final InventoryClient inventoryClient;
 
     public String buyProduct(String id) {
         try {
-            ResponseEntity<String> response = restClient.get()
-                    .uri("http://localhost:8082/inventory/{id}", id)
-                    .retrieve()
-                    .toEntity(String.class);
-
+            ResponseEntity<String> response = inventoryClient.checkInventoryAvilability(id);
             if (response.getStatusCode().is2xxSuccessful()) {
                 return "Product bought successfully";
             }
@@ -52,8 +51,6 @@ public class OrderService {
                 }))
                 .toEntity(Inventory.class);
     }
-
-    private final ObjectMapper objectMapper;
 
     public ResponseEntity<Inventory> addInventory3(Inventory inventory) {
 
