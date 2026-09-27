@@ -23,7 +23,8 @@ public class InventoryController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Inventory> addInventory(@RequestBody Inventory inventory) {
+    public ResponseEntity<Inventory> addInventory(@RequestBody Inventory inventory) throws InterruptedException {
+        Thread.sleep(15000);
         return new ResponseEntity<>(inventoryService.add(inventory), HttpStatus.CREATED);
     }
 }
