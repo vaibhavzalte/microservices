@@ -34,11 +34,7 @@ public class OrderService {
     }
 
     public Inventory addInventory(Inventory inventory) {
-        return restClient.post()
-                .uri("http://localhost:8082/inventory/add")
-                .body(inventory)
-                .retrieve()
-                .body(Inventory.class);
+        return inventoryClient.addInventory(inventory);
     }
 
     public ResponseEntity<Inventory> addInventory2(Inventory inventory) {
