@@ -5,8 +5,9 @@ import com.uv.order_service.outbound.InventoryClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.ObjectMapper;
 
@@ -18,19 +19,23 @@ public class OrderService {
     private final ObjectMapper objectMapper;
     private final InventoryClient inventoryClient;
 
+    @Retryable(
+            retryFor = RuntimeException.class,
+            maxAttempts = 4,
+            backoff = @Backoff(delay = 2000)
+    )
     public String buyProduct(String id) {
-        try {
-            ResponseEntity<String> response = inventoryClient.checkInventoryAvilability(id);
-            if (response.getStatusCode().is2xxSuccessful()) {
-                return "Product bought successfully";
-            }
 
-            return response.getBody();
+        System.out.println("Calling inventory service...");
 
-        } catch (HttpClientErrorException.NotFound e) {
-            return e.getResponseBodyAsString();
+        ResponseEntity<String> response =
+                inventoryClient.checkInventoryAvilability(id);
 
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return "Product bought successfully";
         }
+
+        return response.getBody();
     }
 
     public Inventory addInventory(Inventory inventory) {
