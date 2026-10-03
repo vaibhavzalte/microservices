@@ -3,6 +3,7 @@ package com.uv.order_service.controller;
 import com.uv.order_service.entity.Inventory;
 import com.uv.order_service.service.OrderService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +14,8 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/{id}")
-    public String buyProduct(@PathVariable String id) {
+    public String buyProduct(@PathVariable String id,@RequestHeader(value = "X-test-color",required = false) String header) {
+        System.out.println("X-test-color: " + header);
         return orderService.buyProduct(id);
     }
 

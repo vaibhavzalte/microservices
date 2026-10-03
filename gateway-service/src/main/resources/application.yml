@@ -54,5 +54,7 @@ spring:
             # Order Service
             - id: order-service
               uri: lb://order-service
+              filters:
+                - AddRequestHeader=X-test-color,red
               predicates:
                 - Path=/order/**
