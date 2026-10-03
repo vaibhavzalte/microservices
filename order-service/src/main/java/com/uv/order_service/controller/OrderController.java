@@ -14,8 +14,13 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/{id}")
-    public String buyProduct(@PathVariable String id,@RequestHeader(value = "X-test-color",required = false) String header) {
+    public String buyProduct(
+            @PathVariable String id,
+            @RequestHeader(value = "X-test-color",required = false) String header,
+            @RequestHeader(value = "X-test-name",required = false) String name
+    ) {
         System.out.println("X-test-color: " + header);
+        System.out.println("X-test-name: "+name);
         return orderService.buyProduct(id);
     }
 
