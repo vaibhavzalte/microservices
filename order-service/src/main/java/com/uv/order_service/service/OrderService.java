@@ -26,7 +26,6 @@ public class OrderService {
     )
     public String buyProduct(String id) {
 
-        System.out.println("Calling inventory service...");
 
         ResponseEntity<String> response =
                 inventoryClient.checkInventoryAvilability(id);
