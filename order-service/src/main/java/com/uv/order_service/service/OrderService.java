@@ -2,6 +2,7 @@ package com.uv.order_service.service;
 
 import com.uv.order_service.entity.Inventory;
 import com.uv.order_service.outbound.InventoryClient;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +20,14 @@ public class OrderService {
     private final ObjectMapper objectMapper;
     private final InventoryClient inventoryClient;
 
-    @Retryable(
-            retryFor = RuntimeException.class,
-            maxAttempts = 4,
-            backoff = @Backoff(delay = 2000)
+    @RateLimiter(
+            name="inventoryService",fallbackMethod = "fallBackMethodInventory"
     )
+//    @Retryable(
+//            retryFor = RuntimeException.class,
+//            maxAttempts = 4,
+//            backoff = @Backoff(delay = 2000)
+//    )
     public String buyProduct(String id) {
 
 
@@ -35,6 +39,9 @@ public class OrderService {
         }
 
         return response.getBody();
+    }
+    public String fallBackMethodInventory(String id,Throwable throwable){
+        return "Rate Limiter is not allowing please try again";
     }
 
     public Inventory addInventory(Inventory inventory) {
