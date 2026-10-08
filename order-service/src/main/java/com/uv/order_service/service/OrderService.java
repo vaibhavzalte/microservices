@@ -2,16 +2,16 @@ package com.uv.order_service.service;
 
 import com.uv.order_service.entity.Inventory;
 import com.uv.order_service.outbound.InventoryClient;
-import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.ObjectMapper;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -20,14 +20,17 @@ public class OrderService {
     private final ObjectMapper objectMapper;
     private final InventoryClient inventoryClient;
 
-    @RateLimiter(
-            name="inventoryService",fallbackMethod = "fallBackMethodInventory"
-    )
+    //    @RateLimiter(
+//            name="inventoryService",fallbackMethod = "fallBackMethodInventory"
+//    )
 //    @Retryable(
 //            retryFor = RuntimeException.class,
 //            maxAttempts = 4,
 //            backoff = @Backoff(delay = 2000)
 //    )
+    @CircuitBreaker(
+            name = "inventoryServiceCkt", fallbackMethod = "fallBackeMethodCircuitBreaker"
+    )
     public String buyProduct(String id) {
 
 
@@ -40,8 +43,14 @@ public class OrderService {
 
         return response.getBody();
     }
-    public String fallBackMethodInventory(String id,Throwable throwable){
+
+    public String fallBackMethodInventory(String id, Throwable throwable) {
         return "Rate Limiter is not allowing please try again";
+    }
+
+    public String fallBackeMethodCircuitBreaker(String id, Throwable throwable) {
+        log.info("inventory service is down");
+        return "Circuit breaker working.. inventory service is down";
     }
 
     public Inventory addInventory(Inventory inventory) {
