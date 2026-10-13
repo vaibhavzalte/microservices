@@ -3,6 +3,7 @@ package com.uv.order_service.service;
 import com.uv.order_service.entity.Inventory;
 import com.uv.order_service.outbound.InventoryClient;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
@@ -10,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.ObjectMapper;
+
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -28,22 +31,34 @@ public class OrderService {
 //            maxAttempts = 4,
 //            backoff = @Backoff(delay = 2000)
 //    )
-    @CircuitBreaker(
-            name = "inventoryServiceCkt", fallbackMethod = "fallBackeMethodCircuitBreaker"
-    )
-    public String buyProduct(String id) {
+//    @CircuitBreaker(
+//            name = "inventoryServiceCkt", fallbackMethod = "fallBackeMethodCircuitBreaker"
+//    )
 
+    @TimeLimiter(name = "inventoryServiceTimeLimiter",fallbackMethod = "fallBackMethodTimeLimiter")
+    public CompletableFuture<String> buyProduct(String id) {
 
-        ResponseEntity<String> response =
-                inventoryClient.checkInventoryAvilability(id);
+        return CompletableFuture.supplyAsync(() -> {
 
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return "Product bought successfully";
-        }
+            ResponseEntity<String> response =
+                    inventoryClient.checkInventoryAvilability(id);
 
-        return response.getBody();
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return "Product bought successfully";
+            }
+
+            return response.getBody();
+        });
     }
 
+
+    public CompletableFuture<String> fallBackMethodTimeLimiter(
+            String id, Throwable throwable) {
+        log.info("______Rate Limiter Called___________");
+        return CompletableFuture.completedFuture(
+                "Inventory service timed out. Please try again. Rate Limiter"
+        );
+    }
     public String fallBackMethodInventory(String id, Throwable throwable) {
         return "Rate Limiter is not allowing please try again";
     }

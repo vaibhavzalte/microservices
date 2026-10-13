@@ -6,7 +6,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class InventoryService {
     public boolean checkAbilablity(String id) {
-
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         if (id.equals("1")) {
             return true;
         }

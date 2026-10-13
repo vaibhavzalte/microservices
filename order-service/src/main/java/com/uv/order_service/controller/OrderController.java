@@ -7,6 +7,8 @@ import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.concurrent.CompletableFuture;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/order")
@@ -14,7 +16,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/{id}")
-    public String buyProduct(
+    public CompletableFuture<String> buyProduct(
             @PathVariable String id,
             @RequestHeader(value = "X-test-color",required = false) String header,
             @RequestHeader(value = "X-test-name",required = false) String name
