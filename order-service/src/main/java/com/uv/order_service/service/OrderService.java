@@ -2,6 +2,7 @@ package com.uv.order_service.service;
 
 import com.uv.order_service.entity.Inventory;
 import com.uv.order_service.outbound.InventoryClient;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class OrderService {
 //    @TimeLimiter(name = "inventoryServiceTimeLimiter",fallbackMethod = "fallBackMethodTimeLimiter")
 
 
+    @Bulkhead(name = "inventoryServiceBulkHead",fallbackMethod = "fallBackInventoryBulkHead",type = Bulkhead.Type.SEMAPHORE)
     public CompletableFuture<String> buyProduct(String id) {
 
         return CompletableFuture.supplyAsync(() -> {
@@ -59,6 +61,13 @@ public class OrderService {
         log.info("______Rate Limiter Called___________");
         return CompletableFuture.completedFuture(
                 "Inventory service timed out. Please try again. Rate Limiter"
+        );
+    }
+    public CompletableFuture<String> fallBackInventoryBulkHead(
+            String id, Throwable throwable) {
+        log.info("______BulkHead Semaphore___________");
+        return CompletableFuture.completedFuture(
+                "Order not placed only 2 concurrent request allowed"
         );
     }
     public String fallBackMethodInventory(String id, Throwable throwable) {
