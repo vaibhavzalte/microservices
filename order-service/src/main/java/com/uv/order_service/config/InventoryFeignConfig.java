@@ -12,7 +12,7 @@ import java.time.Duration;
 public class InventoryFeignConfig {
     @Bean
     Logger.Level feignInvLoggerLevel() {
-        return Logger.Level.BASIC;
+        return Logger.Level.HEADERS;
     }
 
     @Bean

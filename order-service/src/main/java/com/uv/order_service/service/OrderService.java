@@ -35,7 +35,9 @@ public class OrderService {
 //            name = "inventoryServiceCkt", fallbackMethod = "fallBackeMethodCircuitBreaker"
 //    )
 
-    @TimeLimiter(name = "inventoryServiceTimeLimiter",fallbackMethod = "fallBackMethodTimeLimiter")
+//    @TimeLimiter(name = "inventoryServiceTimeLimiter",fallbackMethod = "fallBackMethodTimeLimiter")
+
+
     public CompletableFuture<String> buyProduct(String id) {
 
         return CompletableFuture.supplyAsync(() -> {
