@@ -39,7 +39,7 @@ public class OrderService {
 //    @TimeLimiter(name = "inventoryServiceTimeLimiter",fallbackMethod = "fallBackMethodTimeLimiter")
 
 
-    @Bulkhead(name = "inventoryServiceBulkHead",fallbackMethod = "fallBackInventoryBulkHead",type = Bulkhead.Type.SEMAPHORE)
+    @Bulkhead(name = "inventoryServiceBulkHead",fallbackMethod = "fallBackInventoryBulkHead",type = Bulkhead.Type.THREADPOOL)
     public CompletableFuture<String> buyProduct(String id) {
 
         return CompletableFuture.supplyAsync(() -> {
