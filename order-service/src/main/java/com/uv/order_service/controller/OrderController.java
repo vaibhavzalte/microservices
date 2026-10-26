@@ -1,6 +1,7 @@
 package com.uv.order_service.controller;
 
 import com.uv.order_service.entity.Inventory;
+import com.uv.order_service.service.AsyncOrderService;
 import com.uv.order_service.service.OrderService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpRequest;
@@ -14,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 @RequestMapping("/order")
 public class OrderController {
     private final OrderService orderService;
+    private final AsyncOrderService asyncOrderService;
 
     @PostMapping("/{id}")
     public CompletableFuture<String> buyProduct(
@@ -39,5 +41,10 @@ public class OrderController {
     @PostMapping("/add3")
     public ResponseEntity<Inventory> addInventory3(@RequestBody Inventory inventory) {
         return orderService.addInventory3(inventory);
+    }
+
+    @PostMapping("async/add")
+    public void asynAddInventory(@RequestBody Inventory inventory){
+        asyncOrderService.addInventory(inventory);
     }
 }
